@@ -4,7 +4,7 @@
 #include <regex.h>
 
 
-typedef enum { NOT_IDENT, IDENT, END_IDENT, COMMENT, STRING, SINGLE_COMMENT } Type;
+typedef enum { NOT_IDENT, IDENT, END_IDENT, COMMENT, END_COMMENT, STRING, SINGLE_COMMENT } Type;
 typedef enum { true, false } boolean; 
 
 char* LoadFile(FILE * f);
@@ -39,8 +39,40 @@ char * IsType(char ch) {
 	}
 	
 	if (ch == '/') {
-		printf("COMMENT");
+		PreviousType = SINGLE_COMMENT;
 	}
+	
+	if (ch == '"' && PreviousType != STRING) {
+		PreviousType = STRING;
+	}
+	
+	if (PreviousType == STRING) {
+		return "";
+	}
+	
+	if (ch == '"' && PreviousType == STRING) {
+		PreviousType = NOT_IDENT;
+	}
+	
+	if (ch == '*' && PreviousType == SINGLE_COMMENT) {
+		PreviousType = COMMENT;
+	}
+	
+	if (ch == '*' && PreviousType == COMMENT) {
+		PreviousType = END_COMMENT;
+	}
+	
+	if (ch == '/' && PreviousType == END_COMMENT) {
+		PreviousType = NOT_IDENT;
+	}
+	
+	if (ch == '\r' && PreviousType == SINGLE_COMMENT) {
+		PreviousType = NOT_IDENT;
+	}
+	
+	
+	
+
 	
 	if (PreviousType == NOT_IDENT && isdigit(ch)) {
 		PreviousType = NOT_IDENT;

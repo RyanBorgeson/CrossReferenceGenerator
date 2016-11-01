@@ -2,13 +2,17 @@
 #include <string.h>
 #include <regex.h>
 
+/* LETS SEE IF THIS
+crazy comment will get caught... */
 
+// COMMENTS WILL GO HERE...
 
 int main ()
 {
   char * source = "___ abc123def ___ ghi456 ___";
   char * regexString = "[a-z]*([0-9]+)([a-z]*)";
-  size_t maxMatches = 2;
+  /* catch this */
+  size_t maxMatches = 2; /* catch this again */
   size_t maxGroups = 3;
   
   regex_t regexCompiled;
