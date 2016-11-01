@@ -1,2 +1,2 @@
 all:
-	gcc CrossReference.c -o CrossReference
+	gcc CrossReference.c -o CrossReference -w

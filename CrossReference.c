@@ -1,10 +1,8 @@
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <regex.h>
 
 #define EMPTY ""
-typedef enum { NOT_IDENT, IDENT, END_IDENT, COMMENT, END_COMMENT, STRING, SINGLE_COMMENT } Type;
+
+typedef enum { NOT_IDENT, IDENT, END_IDENT, COMMENT, END_COMMENT, STRING, SINGLE_COMMENT, PREPROCESSOR } Type;
 typedef enum { true, false } boolean; 
 
 char* LoadFile(FILE * f);
@@ -29,6 +27,7 @@ boolean IsIdentifier(char ch) {
 char * DetermineIdentifiers(char ch) {
 	static char BuildString[1000];
 	static Type PreviousType = NOT_IDENT;
+	static boolean IsPreprocessor = false;
 	size_t CurrentLength = strlen(BuildString);
 	
 	if (PreviousType == END_IDENT) {
@@ -36,12 +35,18 @@ char * DetermineIdentifiers(char ch) {
 		CurrentLength = 0;
 		BuildString[0] = '\0';
 	}
+
+	if (ch == '#') {
+		IsPreprocessor = true;
+	} else if (ch == '\r') {
+		IsPreprocessor = false;
+	}
 	
 	if (ch == '/') 
 		PreviousType = SINGLE_COMMENT;
-	else if (ch == '"' && PreviousType != STRING) 
+	else if (ch == '"' && PreviousType != STRING && IsPreprocessor == false) 
 		PreviousType = STRING;
-	else if (ch == '"' && PreviousType == STRING) 
+	else if (ch == '"' && PreviousType == STRING && IsPreprocessor == false) 
 		PreviousType = NOT_IDENT;
 	else if (ch == '*' && PreviousType == SINGLE_COMMENT) 
 		PreviousType = COMMENT;
@@ -49,7 +54,7 @@ char * DetermineIdentifiers(char ch) {
 		PreviousType = END_COMMENT;
 	else if (ch == '/' && PreviousType == END_COMMENT) 
 		PreviousType = NOT_IDENT;
-	else if (ch == '\r' && PreviousType == SINGLE_COMMENT) 
+	else if (ch == '\r' && PreviousType == SINGLE_COMMENT)
 		PreviousType = NOT_IDENT;
 	
 	
@@ -60,7 +65,7 @@ char * DetermineIdentifiers(char ch) {
 		PreviousType = NOT_IDENT;
 		return EMPTY;
 	}
-	if (IsIdentifier(ch) && (PreviousType == NOT_IDENT || PreviousType == IDENT)) {
+	if (IsIdentifier(ch) && (PreviousType == NOT_IDENT || PreviousType == IDENT || PreviousType == PREPROCESSOR)) {
 		PreviousType = IDENT;
 		BuildString[CurrentLength] = ch;
 		BuildString[CurrentLength+1] = '\0';
@@ -76,14 +81,13 @@ char * DetermineIdentifiers(char ch) {
 void ProcessFile(char * Source, int size) {
 	int i;
 	int LineCount = 1;
-	char *String;
+	char *Identifier;
 	
 	for (i = 0; i < size; i++) {
-		//IsType(Source[i]);
 		
-		String = DetermineIdentifiers(Source[i]);
-		if (String != "")
-			printf("%s - %i\n", String, LineCount);
+		Identifier = DetermineIdentifiers(Source[i]);
+		if (Identifier != EMPTY)
+			printf("%s - %i\n", Identifier, LineCount);
 		
 		
 		
@@ -91,32 +95,25 @@ void ProcessFile(char * Source, int size) {
 		
 		
 		if (Source[i] == '\r') LineCount++;
-		
-
-		
 	}
-		//printf("%i", LineCount);
 }
 
 
-char * LoadFile(FILE * f) {
-	
-	
-	
+char * LoadFile(FILE * File) {
 	char * buffer;
 	int length;
 	
-	if (f)
+	if (File)
 	{
-	  fseek (f, 0, SEEK_END);
-	  length = ftell (f);
-	  fseek (f, 0, SEEK_SET);
-	  buffer = malloc (length);
-	  if (buffer)
-	  {
-		fread (buffer, 1, length, f);
-	  }
-	  fclose (f);
+		fseek(File, 0, SEEK_END);
+		length = ftell (File);
+		fseek(File, 0, SEEK_SET);
+		buffer = malloc(length);
+	
+		if (buffer) {
+			fread(buffer, 1, length, File);
+		}
+	fclose (File);
 	}
 
 	return buffer;
