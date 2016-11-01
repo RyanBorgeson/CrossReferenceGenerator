@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <regex.h>
 
-
+#define EMPTY ""
 typedef enum { NOT_IDENT, IDENT, END_IDENT, COMMENT, END_COMMENT, STRING, SINGLE_COMMENT } Type;
 typedef enum { true, false } boolean; 
 
@@ -26,9 +26,8 @@ boolean IsIdentifier(char ch) {
     return isalnum(ch) || ch == '_' ? false : true;
 }
 
-char * IsType(char ch) {
+char * DetermineIdentifiers(char ch) {
 	static char BuildString[1000];
-	static int StringCount = 0;
 	static Type PreviousType = NOT_IDENT;
 	size_t CurrentLength = strlen(BuildString);
 	
@@ -38,45 +37,28 @@ char * IsType(char ch) {
 		BuildString[0] = '\0';
 	}
 	
-	if (ch == '/') {
+	if (ch == '/') 
 		PreviousType = SINGLE_COMMENT;
-	}
-	
-	if (ch == '"' && PreviousType != STRING) {
+	else if (ch == '"' && PreviousType != STRING) 
 		PreviousType = STRING;
-	}
-	
-	if (PreviousType == STRING) {
-		return "";
-	}
-	
-	if (ch == '"' && PreviousType == STRING) {
+	else if (ch == '"' && PreviousType == STRING) 
 		PreviousType = NOT_IDENT;
-	}
-	
-	if (ch == '*' && PreviousType == SINGLE_COMMENT) {
+	else if (ch == '*' && PreviousType == SINGLE_COMMENT) 
 		PreviousType = COMMENT;
-	}
-	
-	if (ch == '*' && PreviousType == COMMENT) {
+	else if (ch == '*' && PreviousType == COMMENT) 
 		PreviousType = END_COMMENT;
-	}
-	
-	if (ch == '/' && PreviousType == END_COMMENT) {
+	else if (ch == '/' && PreviousType == END_COMMENT) 
 		PreviousType = NOT_IDENT;
-	}
-	
-	if (ch == '\r' && PreviousType == SINGLE_COMMENT) {
+	else if (ch == '\r' && PreviousType == SINGLE_COMMENT) 
 		PreviousType = NOT_IDENT;
-	}
 	
 	
-	
-
+	if (PreviousType == STRING) 
+		return EMPTY;
 	
 	if (PreviousType == NOT_IDENT && isdigit(ch)) {
 		PreviousType = NOT_IDENT;
-		return "";
+		return EMPTY;
 	}
 	if (IsIdentifier(ch) && (PreviousType == NOT_IDENT || PreviousType == IDENT)) {
 		PreviousType = IDENT;
@@ -88,8 +70,7 @@ char * IsType(char ch) {
 		return BuildString;
 	}
 	
-	
-	return "";
+	return EMPTY;
 }
 
 void ProcessFile(char * Source, int size) {
@@ -100,9 +81,9 @@ void ProcessFile(char * Source, int size) {
 	for (i = 0; i < size; i++) {
 		//IsType(Source[i]);
 		
-		String = IsType(Source[i]);
+		String = DetermineIdentifiers(Source[i]);
 		if (String != "")
-			printf("%s\n", String);
+			printf("%s - %i\n", String, LineCount);
 		
 		
 		
