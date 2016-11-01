@@ -4,7 +4,7 @@
 #include <regex.h>
 
 
-typedef enum { NOT_IDENT, IDENT, COMMENT, STRING, SINGLE_COMMENT } Type;
+typedef enum { NOT_IDENT, IDENT, END_IDENT, COMMENT, STRING, SINGLE_COMMENT } Type;
 typedef enum { true, false } boolean; 
 
 char* LoadFile(FILE * f);
@@ -23,16 +23,54 @@ int main() {
 }
 
 boolean IsIdentifier(char ch) {
-    return isalnum(ch) || ch == '_' ? true : false;
+    return isalnum(ch) || ch == '_' ? false : true;
+}
+
+char * IsType(char ch) {
+	static char BuildString[1000];
+	static int StringCount = 0;
+	static Type PreviousType = NOT_IDENT;
+	size_t CurrentLength = strlen(BuildString);
+	
+	if (PreviousType == END_IDENT) {
+		PreviousType = NOT_IDENT;
+		CurrentLength = 0;
+		BuildString[0] = '\0';
+	}
+	
+	if (ch == '/') {
+		printf("COMMENT");
+	}
+	
+	if (PreviousType == NOT_IDENT && isdigit(ch)) {
+		PreviousType = NOT_IDENT;
+		return "";
+	}
+	if (IsIdentifier(ch) && (PreviousType == NOT_IDENT || PreviousType == IDENT)) {
+		PreviousType = IDENT;
+		BuildString[CurrentLength] = ch;
+		BuildString[CurrentLength+1] = '\0';
+	}
+	if (PreviousType == IDENT && !IsIdentifier(ch)) {
+		PreviousType = END_IDENT;
+		return BuildString;
+	}
+	
+	
+	return "";
 }
 
 void ProcessFile(char * Source, int size) {
 	int i;
 	int LineCount = 1;
+	char *String;
 	
 	for (i = 0; i < size; i++) {
+		//IsType(Source[i]);
 		
-		printf("%c\n", Source[i]);
+		String = IsType(Source[i]);
+		if (String != "")
+			printf("%s\n", String);
 		
 		
 		
@@ -44,7 +82,7 @@ void ProcessFile(char * Source, int size) {
 
 		
 	}
-		printf("%i", LineCount);
+		//printf("%i", LineCount);
 }
 
 
