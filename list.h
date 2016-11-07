@@ -1,8 +1,11 @@
+#include <stdio.h>
+#include "queue.h"
+
 #define MAX_IDENTIFIER 200
 
 typedef struct Node {
 	char Identifier[MAX_IDENTIFIER];
-	int Line;
+	Queue * Line;
 	struct Node * Next;
 } Node;
 
