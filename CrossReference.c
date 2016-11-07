@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "list.h"
 
 #define EMPTY ""
 
@@ -8,14 +9,18 @@ typedef enum { true, false } boolean;
 char* LoadFile(FILE * f);
 boolean IsIdentifier(char ch);
 
+LList LinkedList;
+
 
 int main() {
 	
 	FILE * f = fopen ("SampleFile.txt", "rb");
 	char * source = LoadFile(f);
 	
+	InitList(&LinkedList);
+	
+	
 	int Size = strlen(source);
-	int i;
 	
 	ProcessFile(source, Size);
 }
@@ -36,11 +41,10 @@ char * DetermineIdentifiers(char ch) {
 		BuildString[0] = '\0';
 	}
 
-	if (ch == '#') {
+	if (ch == '#')
 		IsPreprocessor = true;
-	} else if (ch == '\r') {
+	else if (ch == '\r')
 		IsPreprocessor = false;
-	}
 	
 	if (ch == '/') 
 		PreviousType = SINGLE_COMMENT;
@@ -86,16 +90,16 @@ void ProcessFile(char * Source, int size) {
 	for (i = 0; i < size; i++) {
 		
 		Identifier = DetermineIdentifiers(Source[i]);
-		if (Identifier != EMPTY)
-			printf("%s - %i\n", Identifier, LineCount);
-		
-		
-		
-		
-		
+		if (Identifier != EMPTY) {
+			//printf("%s - %i\n", Identifier, LineCount);
+			AddNode(&LinkedList, Identifier, LineCount);
+		}
 		
 		if (Source[i] == '\r') LineCount++;
 	}
+	
+	ListNodes(&LinkedList);
+	//printf("\n\nLast Identifier: %s Line: %i", *LinkedList.Head->Identifier, LinkedList.Head->Line);
 }
 
 
