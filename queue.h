@@ -2,7 +2,7 @@
 
 
 typedef struct Queue {
-    int Queue[QUEUE_SIZE];
+    int LineQueue[QUEUE_SIZE];
     int Front;
     int Back;
 } Queue;

@@ -11,14 +11,18 @@ void InitList(LList * LinkedList) {
 
 
 void AddNode(LList * LinkedList, char * Identifier, int Line) {
-	Node * n = malloc(sizeof(Node));
+	Node * n = malloc(sizeof * n);
 	Queue * q = malloc(sizeof(Queue));
+	
+	
 	
 	// Initialize Queue
 	InitQueue(&q);
 	
 	strncpy(n->Identifier, Identifier, MAX_IDENTIFIER);
-	Enqueue(&q, Line);
+
+	
+	Enqueue(q, Line);
 	n->Line = q;
 	n->Next = NULL;
 	
@@ -53,7 +57,14 @@ void ListNodes(LList * LinkedList) {
 	Node *tmp = LinkedList->Head;
 	
 	while (tmp != NULL) {
-		printf("Node: %s, Line: %i\n", tmp->Identifier, tmp->Line);
+		printf("Node: %s\t\t", tmp->Identifier);
+		
+		int i;
+		for (i = tmp->Line->Front; i < tmp->Line->Back; i++) {
+			printf("%i ", tmp->Line->LineQueue[i]);
+		}
+		printf("\n");
+		
 		tmp = tmp->Next;
 	}
 }
