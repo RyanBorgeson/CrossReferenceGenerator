@@ -3,20 +3,17 @@
 
 void InitQueue(Queue * q) {
     q->Front = 0;
-    q->Back = 5;
-	
+    q->Back = -1;
 }
 
 int Dequeue(Queue * q) {
-    return q->LineQueue[ (q->Front)++ ];
+	q->Front++;
+    return (q->Front > q->Back) ? -1 : q->LineQueue[q->Front - 1];
 }
 
 void Enqueue(Queue * q, int Line) {
-		printf("%i ", q->Back);
     if(q->Back < QUEUE_SIZE - 1) {
-	//	q->Back++;
-	//	q->LineQueue[ q->Back ] = Line;
+		q->LineQueue[q->Back] = Line;
+		q->Back++;
 	}
-        
 }
-

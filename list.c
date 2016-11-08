@@ -11,28 +11,29 @@ void InitList(LList * LinkedList) {
 
 
 void AddNode(LList * LinkedList, char * Identifier, int Line) {
+	
 	Node * n = malloc(sizeof * n);
 	Queue * q = malloc(sizeof(Queue));
 	
-	
-	
 	// Initialize Queue
 	InitQueue(&q);
-	
 	strncpy(n->Identifier, Identifier, MAX_IDENTIFIER);
-
-	
-	Enqueue(q, Line);
 	n->Line = q;
 	n->Next = NULL;
 	
 	if (LinkedList->Head == NULL && LinkedList->Tail == NULL) {
+		
 		LinkedList->Head = n;
 		LinkedList->Tail = n;
+		LinkedList->Head->Line->LineQueue[0] = Line;
+		LinkedList->Head->Line->Back = -1;
+		LinkedList->Head->Line->Front = 0;
+		
 	} else {
 		Node * s = SearchNodes(LinkedList, Identifier);
 		
 		if (s == NULL) {
+			Enqueue(n->Line, Line);
 			LinkedList->Tail->Next = n;
 			LinkedList->Tail = n;
 		} else {
@@ -53,18 +54,24 @@ Node * SearchNodes(LList * LinkedList, char * Identifier) {
 	return NULL;
 }
 
-void ListNodes(LList * LinkedList) {
-	Node *tmp = LinkedList->Head;
+void ListNodes(LList * LinkedList, char * FileName) {
+	FILE *f = fopen(FileName, "w");
+	
+	Node * tmp = LinkedList->Head;
 	
 	while (tmp != NULL) {
-		printf("Node: %s\t\t", tmp->Identifier);
+		fprintf(f, "%-20s\t", tmp->Identifier);
 		
-		int i;
-		for (i = tmp->Line->Front; i < tmp->Line->Back; i++) {
-			printf("%i ", tmp->Line->LineQueue[i]);
+		int Last;
+				
+		while ((Last = Dequeue(tmp->Line)) != -1) {
+			fprintf(f, "%d ", Last);
 		}
-		printf("\n");
+		
+		fprintf(f, "\n");
 		
 		tmp = tmp->Next;
 	}
+	
+	fclose(f);
 }

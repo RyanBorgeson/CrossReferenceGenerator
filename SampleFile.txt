@@ -4,7 +4,6 @@
  *   isDateBefore - is the first date before the second?
  *   isDateAfter - is the first date after the second?
  */
-
 #include "date.h"                  /* date type and prototypes */
 
 int areDatesEqual(const Date *xptr, const Date *yptr)   

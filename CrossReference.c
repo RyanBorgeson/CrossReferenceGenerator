@@ -11,18 +11,19 @@ boolean IsIdentifier(char ch);
 
 LList LinkedList;
 
-
-int main() {
+int main(int argc, char* argv[]) {
+		
+	if (argc != 3) {
+        printf("Usage: ./CrossReference <SourceFile> <OutputFile>");
+        exit(1);
+    }
 	
-	FILE * f = fopen ("SampleFile.txt", "rb");
+	FILE * f = fopen (argv[1], "rb");
 	char * source = LoadFile(f);
 	
+	
 	InitList(&LinkedList);
-	
-	
-	int Size = strlen(source);
-	
-	ProcessFile(source, Size);
+	ProcessFile(source, strlen(source), argv[2]);
 }
 
 boolean IsIdentifier(char ch) {
@@ -82,7 +83,7 @@ char * DetermineIdentifiers(char ch) {
 	return EMPTY;
 }
 
-void ProcessFile(char * Source, int size) {
+void ProcessFile(char * Source, int size, char * OutputFile) {
 	int i;
 	int LineCount = 1;
 	char *Identifier;
@@ -91,17 +92,14 @@ void ProcessFile(char * Source, int size) {
 		
 		Identifier = DetermineIdentifiers(Source[i]);
 		if (Identifier != EMPTY) {
-			//printf("%s - %i\n", Identifier, LineCount);
 			AddNode(&LinkedList, Identifier, LineCount);
 		}
 		
 		if (Source[i] == '\r') LineCount++;
 	}
 	
-	ListNodes(&LinkedList);
-	//printf("\n\nLast Identifier: %s Line: %i", *LinkedList.Head->Identifier, LinkedList.Head->Line);
+	ListNodes(&LinkedList, OutputFile);
 }
-
 
 char * LoadFile(FILE * File) {
 	char * buffer;
